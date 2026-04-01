@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Google Sans', -apple-system, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    /* ── 상단 타이틀 ── */
+    .header {
+      text-align: center;
+      padding: 12px 0 16px;
+      border-bottom: 1px solid #333;
+      margin-bottom: 16px;
+    }
+    .header h2 {
+      font-size: 18px;
+      color: #ffd700;
+      margin-bottom: 4px;
+    }
+    .header p {
+      font-size: 11px;
+      color: #888;
+    }
+
+    /* ── 안내 메시지 ── */
+    .guide {
+      background: #16213e;
+      border: 1px dashed #ffd700;
+      border-radius: 10px;
+      padding: 20px 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .guide .icon { font-size: 36px; margin-bottom: 8px; }
+    .guide p {
+      font-size: 13px;
+      color: #aaa;
+      line-height: 1.6;
+    }
+    .guide strong { color: #ffd700; }
+
+    /* ── 고객 정보 카드 ── */
+    .info-card {
+      background: #16213e;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .info-card.show { display: block; }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #222;
+      font-size: 13px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #888; }
+    .info-value { color: #fff; font-weight: 500; text-align: right; }
+    .info-value.warn { color: #ff6b6b; }
+
+    .client-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      padding: 8px 0 12px;
+      border-bottom: 1px solid #333;
+      margin-bottom: 8px;
+    }
+
+    /* ── 발송 버튼 ── */
+    .send-btn {
+      display: none;
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+    }
+    .send-btn.ready {
+      display: block;
+      background: #ffd700;
+      color: #1a1a2e;
+    }
+    .send-btn.ready:hover {
+      background: #ffed4a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255,215,0,0.3);
+    }
+    .send-btn.ready:active {
+      transform: translateY(0);
+    }
+    .send-btn.disabled {
+      display: block;
+      background: #333;
+      color: #666;
+      cursor: not-allowed;
+    }
+    .send-btn.sending {
+      display: block;
+      background: #555;
+      color: #ccc;
+      cursor: wait;
+    }
+
+    /* ── 새로고침 버튼 ── */
+    .refresh-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      font-size: 13px;
+      background: transparent;
+      color: #888;
+      border: 1px solid #333;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover {
+      border-color: #ffd700;
+      color: #ffd700;
+    }
+
+    /* ── 상태 메시지 ── */
+    .status {
+      text-align: center;
+      font-size: 13px;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 12px;
+      display: none;
+    }
+    .status.success {
+      display: block;
+      background: #0d3320;
+      color: #4ade80;
+      border: 1px solid #166534;
+    }
+    .status.error {
+      display: block;
+      background: #3b1111;
+      color: #ff6b6b;
+      border: 1px solid #7f1d1d;
+    }
+    .status.info {
+      display: block;
+      background: #1e3a5f;
+      color: #60a5fa;
+      border: 1px solid #1e40af;
+    }
+
+    /* ── 하단 안내 ── */
+    .footer {
+      margin-top: 20px;
+      padding-top: 12px;
+      border-top: 1px solid #333;
+      font-size: 10px;
+      color: #555;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* ── 로딩 ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid #888;
+      border-top-color: #ffd700;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 -->
+  <div class="header">
+    <h2>📩 견적서 카톡 발송</h2>
+    <p>행을 선택하면 고객 정보가 표시됩니다</p>
+  </div>
+
+  <!-- 안내 (행 미선택 시) -->
+  <div class="guide" id="guide">
+    <div class="icon">👆</div>
+    <p>
+      거래내역 시트에서<br>
+      <strong>발송할 고객의 행</strong>을 클릭하세요<br><br>
+      그 다음 아래 <strong>🔄 새로고침</strong> 버튼을 누르면<br>
+      고객 정보가 여기에 표시됩니다
+    </p>
+  </div>
+
+  <!-- 고객 정보 카드 -->
+  <div class="info-card" id="infoCard">
+    <div class="client-name" id="clientName">-</div>
+    <div class="info-row">
+      <span class="info-label">거래ID</span>
+      <span class="info-value" id="trID">-</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">날짜</span>
+      <span class="info-value" id="tradeDate">-</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">전화번호</span>
+      <span class="info-value" id="phone">-</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">금액</span>
+      <span class="info-value" id="amount">-</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">계약서</span>
+      <span class="info-value" id="linkStatus">-</span>
+    </div>
+  </div>
+
+  <!-- 발송 버튼 -->
+  <button class="send-btn" id="sendBtn" onclick="sendContract()">
+    📩 이 고객에게 견적서 카톡 발송
+  </button>
+
+  <!-- 새로고침 -->
+  <button class="refresh-btn" onclick="loadRow()">
+    🔄 선택한 행 새로고침
+  </button>
+
+  <!-- 상태 -->
+  <div class="status" id="statusMsg"></div>
+
+  <!-- 하단 -->
+  <div class="footer">
+    행 선택 → 새로고침 → 발송 버튼 클릭<br>
+    PDF 변환 후 카톡 알림톡으로 발송됩니다
+  </div>
+
+<script>
+  var currentRow = null;
+
+  // 페이지 로드 시 자동으로 행 정보 불러오기
+  window.onload = function() { loadRow(); };
+
+  function loadRow() {
+    showStatus("info", "<span class='spinner'></span> 행 정보 불러오는 중...");
+    document.getElementById("sendBtn").className = "send-btn";
+
+    google.script.run
+      .withSuccessHandler(onRowLoaded)
+      .withFailureHandler(onError)
+      .getSelectedRowInfo();
+  }
+
+  function onRowLoaded(info) {
+    hideStatus();
+
+    if (info.error) {
+      document.getElementById("guide").style.display = "block";
+      document.getElementById("infoCard").className = "info-card";
+      document.getElementById("sendBtn").className = "send-btn";
+      showStatus("info", info.error);
+      return;
+    }
+
+    // 안내 숨기고 카드 표시
+    document.getElementById("guide").style.display = "none";
+    document.getElementById("infoCard").className = "info-card show";
+
+    // 정보 채우기
+    currentRow = info.row;
+    document.getElementById("clientName").textContent = info.clientName;
+    document.getElementById("trID").textContent = info.trID;
+    document.getElementById("tradeDate").textContent = info.tradeDate;
+    document.getElementById("phone").textContent = info.phone;
+    document.getElementById("amount").textContent = info.amount;
+
+    var linkEl = document.getElementById("linkStatus");
+    if (info.hasLink) {
+      linkEl.textContent = "✅ 생성됨";
+      linkEl.className = "info-value";
+    } else {
+      linkEl.textContent = "❌ 없음";
+      linkEl.className = "info-value warn";
+    }
+
+    // 버튼 상태
+    if (info.canSend) {
+      document.getElementById("sendBtn").className = "send-btn ready";
+    } else {
+      document.getElementById("sendBtn").className = "send-btn disabled";
+      var reasons = [];
+      if (!info.clientName || info.clientName === "(비어있음)") reasons.push("예약자명 없음");
+      if (!info.phone || info.phone === "(비어있음)" || info.phone.length < 10) reasons.push("전화번호 없음");
+      if (!info.hasLink) reasons.push("계약서 링크 없음");
+      showStatus("error", "⚠️ 발송 불가: " + reasons.join(", "));
+    }
+  }
+
+  function sendContract() {
+    if (!currentRow) return;
+
+    var btn = document.getElementById("sendBtn");
+    if (btn.className.indexOf("ready") === -1) return;
+
+    var name = document.getElementById("clientName").textContent;
+
+    if (!confirm(name + "님에게 견적서를 카톡으로 발송할까요?")) return;
+
+    // 발송 중 상태
+    btn.className = "send-btn sending";
+    btn.innerHTML = "<span class='spinner'></span> 발송 중... (PDF 변환 → 카톡)";
+    showStatus("info", "<span class='spinner'></span> PDF 변환 중...");
+
+    google.script.run
+      .withSuccessHandler(onSendSuccess)
+      .withFailureHandler(onSendError)
+      .executeSendContract(currentRow);
+  }
+
+  function onSendSuccess(result) {
+    document.getElementById("sendBtn").className = "send-btn ready";
+    document.getElementById("sendBtn").textContent = "📩 이 고객에게 견적서 카톡 발송";
+    showStatus("success", "✅ " + result.message);
+  }
+
+  function onSendError(err) {
+    document.getElementById("sendBtn").className = "send-btn ready";
+    document.getElementById("sendBtn").textContent = "📩 이 고객에게 견적서 카톡 발송";
+    showStatus("error", "❌ " + err.message);
+  }
+
+  function onError(err) {
+    showStatus("error", "오류: " + err.message);
+  }
+
+  function showStatus(type, msg) {
+    var el = document.getElementById("statusMsg");
+    el.className = "status " + type;
+    el.innerHTML = msg;
+  }
+  function hideStatus() {
+    document.getElementById("statusMsg").className = "status";
+  }
+</script>
+
+</body>
+</html>
