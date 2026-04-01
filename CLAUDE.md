@@ -4,7 +4,8 @@
 
 ## 배포
 - `clasp push` → GAS 편집기에서 웹앱 새 버전 배포
-- GitHub Pages: `docs/index.html` (약관 동의 페이지)
+- 웹앱 URL: `https://script.google.com/macros/s/AKfycbwX2V0SqRf23DCwaVojlc5YFXKTfMNLBt68edpGmCx8j0i9hkYdP_bXHKEGIcde2iS5EA/exec`
+- GitHub Pages: `https://village6k-cpu.github.io/village-agreement/` (약관 동의 페이지, docs/index.html)
 
 ## 파일 구조
 - **Code.js** — 메인 로직 (onChange 트리거, 세금계산서/현금영수증 발행, 알림톡, 입금매칭)
