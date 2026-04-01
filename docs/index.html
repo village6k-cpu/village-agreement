@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>빌리지 장비 대여 약관</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    background: #f2f2f2;
+    color: #1a1a1a;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+
+  /* ── 헤더 ── */
+  .header {
+    text-align: center;
+    padding: 32px 0 24px;
+  }
+  .header-icon {
+    width: 48px; height: 48px;
+    margin: 0 auto 12px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-icon svg { width: 28px; height: 28px; fill: #fff; }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .header p {
+    font-size: 13px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  /* ── 카드 공통 ── */
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  /* ── 대여 정보 ── */
+  .info-label {
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .info-value {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* ── 계약서 링크 ── */
+  .contract-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+    border-radius: 16px;
+  }
+  .contract-link:active { background: #f7f7f7; }
+  .contract-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .contract-icon {
+    width: 40px; height: 40px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .contract-icon svg { width: 20px; height: 20px; fill: #555; }
+  .contract-title { font-size: 15px; font-weight: 600; }
+  .contract-sub { font-size: 12px; color: #888; margin-top: 2px; }
+  .contract-arrow { color: #ccc; font-size: 18px; }
+
+  /* ── 약관 항목 ── */
+  .terms-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .terms-title svg { width: 18px; height: 18px; fill: #1a1a1a; }
+  .term-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .term-item:last-child { margin-bottom: 0; }
+  .term-num {
+    width: 22px; height: 22px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #666;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .term-text {
+    font-size: 14px;
+    color: #333;
+    flex: 1;
+  }
+
+  /* ── 동의 체크박스 ── */
+  .agree-section {
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+  .checkbox-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .custom-checkbox {
+    width: 24px; height: 24px;
+    border: 2px solid #d0d0d0;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .custom-checkbox svg {
+    width: 14px; height: 14px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .custom-checkbox.checked {
+    background: #1a1a1a;
+    border-color: #1a1a1a;
+  }
+  .custom-checkbox.checked svg { opacity: 1; }
+  .checkbox-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.4;
+  }
+
+  /* ── 버튼 ── */
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #e0e0e0;
+    color: #999;
+    pointer-events: none;
+    font-family: inherit;
+  }
+  .submit-btn.active {
+    background: #1a1a1a;
+    color: #fff;
+    pointer-events: auto;
+  }
+  .submit-btn.active:active {
+    transform: scale(0.98);
+    background: #333;
+  }
+  .submit-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  /* ── 하단 안내 ── */
+  .footer-note {
+    text-align: center;
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 16px;
+    line-height: 1.5;
+    padding: 0 12px;
+  }
+
+  /* ── 성공 오버레이 ── */
+  .overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.97);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .success-circle {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+  }
+  .success-circle svg {
+    width: 36px; height: 36px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .success-circle svg path {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: drawCheck 0.5s 0.3s forwards;
+  }
+  @keyframes drawCheck {
+    to { stroke-dashoffset: 0; }
+  }
+  .success-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .success-sub {
+    font-size: 14px;
+    color: #888;
+  }
+  .success-time {
+    font-size: 13px;
+    color: #aaa;
+    margin-top: 4px;
+  }
+
+  /* ── 에러 상태 ── */
+  .error-card {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .error-card .icon { font-size: 48px; margin-bottom: 16px; }
+  .error-card h2 { font-size: 18px; margin-bottom: 8px; }
+  .error-card p { font-size: 14px; color: #888; }
+
+  /* ── 이미 동의 ── */
+  .already-card {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .already-card .icon { font-size: 48px; margin-bottom: 12px; }
+  .already-card h2 { font-size: 18px; margin-bottom: 6px; }
+  .already-card p { font-size: 14px; color: #888; line-height: 1.5; }
+
+  /* ── 로딩 ── */
+  .loading-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #888;
+    font-size: 14px;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid #eee;
+    border-top-color: #1a1a1a;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- 로딩 -->
+<div class="container" id="loadingView">
+  <div class="loading-state">
+    <div class="spinner"></div>
+    정보를 불러오는 중...
+  </div>
+</div>
+
+<!-- 에러 -->
+<div class="container" id="errorView" style="display:none">
+  <div class="card error-card">
+    <div class="icon">&#9888;&#65039;</div>
+    <h2>잘못된 접근입니다</h2>
+    <p id="errorMsg">유효하지 않은 링크입니다.</p>
+  </div>
+</div>
+
+<!-- 이미 동의 완료 -->
+<div class="container" id="alreadyView" style="display:none">
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </div>
+    <h1>빌리지 장비 대여 약관</h1>
+  </div>
+  <div class="card already-card">
+    <div class="icon">&#9989;</div>
+    <h2>이미 동의가 완료되었습니다</h2>
+    <p id="alreadyTime"></p>
+  </div>
+</div>
+
+<!-- 메인 -->
+<div class="container" id="mainView" style="display:none">
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </div>
+    <h1>빌리지 장비 대여 약관</h1>
+    <p>VILLAGE RENTAL</p>
+  </div>
+
+  <!-- 대여 정보 -->
+  <div class="card">
+    <div class="info-label">대여 기간</div>
+    <div class="info-value" id="periodText">-</div>
+  </div>
+
+  <!-- 계약서 링크 -->
+  <a class="card contract-link" id="contractLink" href="#" target="_blank" style="display:none">
+    <div class="contract-left">
+      <div class="contract-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8" fill="none" stroke="#555" stroke-width="1.5"/></svg>
+      </div>
+      <div>
+        <div class="contract-title">계약서 전문 보기</div>
+        <div class="contract-sub">탭하여 계약서 내용을 확인하세요</div>
+      </div>
+    </div>
+    <span class="contract-arrow">&#8250;</span>
+  </a>
+
+  <!-- 약관 -->
+  <div class="card">
+    <div class="terms-title">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      주요 약관
+    </div>
+    <div class="term-item">
+      <div class="term-num">1</div>
+      <div class="term-text">모든 구성품을 빠짐없이 반납할 의무가 있으며, 미반납 시 배상 책임이 발생합니다.</div>
+    </div>
+    <div class="term-item">
+      <div class="term-num">2</div>
+      <div class="term-text">장비의 파손, 고장, 분실 시 수리비 또는 시가에 해당하는 배상 책임이 있습니다.</div>
+    </div>
+    <div class="term-item">
+      <div class="term-num">3</div>
+      <div class="term-text">반납 기한을 초과할 경우 초과 일수에 따른 추가 대여료가 발생합니다.</div>
+    </div>
+    <div class="term-item">
+      <div class="term-num">4</div>
+      <div class="term-text">반납 후 검수 과정에서 발견된 문제에 대해서도 대여자에게 책임이 있습니다.</div>
+    </div>
+    <div class="term-item">
+      <div class="term-num">5</div>
+      <div class="term-text">연락 두절 등 반환 의무를 이행하지 않을 경우 법적 조치가 진행될 수 있습니다.</div>
+    </div>
+  </div>
+
+  <!-- 동의 -->
+  <div class="card agree-section">
+    <div class="checkbox-wrap" id="checkboxWrap">
+      <div class="custom-checkbox" id="checkbox">
+        <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>
+      </div>
+      <span class="checkbox-label">계약서 및 약관을 확인했으며 동의합니다</span>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitAgreement()">동의합니다</button>
+
+  <div class="footer-note">
+    본 동의 내역은 기록되며,<br>분쟁 발생 시 증빙자료로 활용됩니다.
+  </div>
+</div>
+
+<!-- 성공 오버레이 -->
+<div class="overlay" id="successOverlay">
+  <div class="success-circle">
+    <svg viewBox="0 0 24 24"><path d="M4 12l6 6L20 6"/></svg>
+  </div>
+  <div class="success-title">동의가 완료되었습니다</div>
+  <div class="success-sub" id="successName"></div>
+  <div class="success-time" id="successTime"></div>
+</div>
+
+<script>
+// ━━━ 설정 ━━━
+// ★ 배포 후 아래 URL을 실제 GAS 웹앱 URL로 교체하세요 ★
+var API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+
+var tradeID = "";
+var agreed = false;
+
+// ━━━ 초기화 ━━━
+(function init() {
+  var params = new URLSearchParams(window.location.search);
+  tradeID = params.get("id") || "";
+
+  if (!tradeID) {
+    showError("유효하지 않은 링크입니다.\n거래ID가 누락되었습니다.");
+    return;
+  }
+
+  fetchInfo();
+})();
+
+function fetchInfo() {
+  // JSONP로 호출 (CORS 회피)
+  var script = document.createElement("script");
+  script.src = API_URL + "?action=info&id=" + encodeURIComponent(tradeID) + "&callback=onInfoLoaded";
+  script.onerror = function() { showError("서버에 연결할 수 없습니다."); };
+  document.head.appendChild(script);
+}
+
+function onInfoLoaded(data) {
+  document.getElementById("loadingView").style.display = "none";
+
+  if (data.error) {
+    showError(data.error);
+    return;
+  }
+
+  if (data.alreadyAgreed) {
+    document.getElementById("alreadyView").style.display = "block";
+    document.getElementById("alreadyTime").textContent =
+      "동의 일시: " + data.agreedAt;
+    return;
+  }
+
+  // 메인 뷰 표시
+  document.getElementById("mainView").style.display = "block";
+
+  // 대여 기간
+  document.getElementById("periodText").textContent = data.date || "-";
+
+  // 계약서 링크
+  if (data.contractLink) {
+    var link = document.getElementById("contractLink");
+    link.href = data.contractLink;
+    link.style.display = "flex";
+  }
+
+  // 체크박스
+  document.getElementById("checkboxWrap").addEventListener("click", function() {
+    agreed = !agreed;
+    var cb = document.getElementById("checkbox");
+    var btn = document.getElementById("submitBtn");
+    if (agreed) {
+      cb.classList.add("checked");
+      btn.classList.add("active");
+    } else {
+      cb.classList.remove("checked");
+      btn.classList.remove("active");
+    }
+  });
+}
+
+function showError(msg) {
+  document.getElementById("loadingView").style.display = "none";
+  document.getElementById("errorView").style.display = "block";
+  document.getElementById("errorMsg").textContent = msg;
+}
+
+// ━━━ 동의 제출 ━━━
+function submitAgreement() {
+  if (!agreed) return;
+
+  var btn = document.getElementById("submitBtn");
+  btn.textContent = "처리 중...";
+  btn.classList.add("loading");
+
+  var body = {
+    action: "agree",
+    id: tradeID,
+    ip: "",
+    userAgent: navigator.userAgent
+  };
+
+  // IP 조회 후 전송
+  fetch("https://api.ipify.org?format=json")
+    .then(function(r) { return r.json(); })
+    .then(function(d) { body.ip = d.ip; })
+    .catch(function() {})
+    .finally(function() {
+      // GAS POST 전송
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(body)
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(result) {
+        if (result.error) {
+          alert("오류: " + result.error);
+          btn.textContent = "동의합니다";
+          btn.classList.remove("loading");
+          return;
+        }
+        showSuccess(result.agreedAt);
+      })
+      .catch(function(err) {
+        alert("전송 실패: " + err.message);
+        btn.textContent = "동의합니다";
+        btn.classList.remove("loading");
+      });
+    });
+}
+
+function showSuccess(time) {
+  var overlay = document.getElementById("successOverlay");
+  document.getElementById("successTime").textContent = "동의 일시: " + time;
+  overlay.classList.add("show");
+}
+</script>
+</body>
+</html>
