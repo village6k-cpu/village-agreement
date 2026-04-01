@@ -285,39 +285,21 @@ function sendAgreementAlimtalk() {
       "감사합니다.";
 
     var accessToken = getPopbillAccessToken(["member", "153"]);
-    var tplCode = "026040000008";
 
-    var body = {
-      snd: "0507-1394-8539",
-      templateCode: tplCode,
-      content: content,
-      msgs: [{
-        rcv: phone,
-        rcvnm: customerName
-      }],
-      btns: [{
-        n: "약관 확인 및 동의",
-        t: "WL",
-        u1: link,
-        u2: link
-      }],
-      altSendType: "A"
-    };
-
-    var endpoint = "https://popbill.linkhub.co.kr/ATS";
-
-    var options = {
-      method: "post",
-      contentType: "application/json",
-      headers: {
-        "Authorization": "Bearer " + accessToken,
-        "x-pb-userid": "MASTER"
-      },
-      payload: JSON.stringify(body),
+    var response = UrlFetchApp.fetch("https://popbill.linkhub.co.kr/ATS", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json" },
+      payload: JSON.stringify({
+        templateCode: "026040000008", snd: "01071261139", altSendType: "A",
+        msgs: [{
+          rcv: phone, rcvnm: customerName, msg: content,
+          altmsg: "[빌리지] " + customerName + " 감독님, 약관 동의 요청입니다.\n" + link,
+          btns: [{ n: "약관 확인 및 동의", t: "WL", u1: link, u2: link }]
+        }]
+      }),
       muteHttpExceptions: true
-    };
+    });
 
-    var response = UrlFetchApp.fetch(endpoint + "/" + PB_CORP_NUM, options);
     var result = JSON.parse(response.getContentText());
     Logger.log("약관 알림톡 발송 결과: " + response.getContentText());
 
