@@ -278,34 +278,33 @@ function sendAgreementAlimtalk() {
   if (confirm !== ui.Button.YES) return;
 
   try {
+    // 승인된 알림톡 템플릿과 정확히 일치해야 함
     var content = customerName + " 감독님, 안녕하세요.\n빌리지 렌탈샵입니다.\n\n" +
       "장비 대여에 앞서 약관 동의가 필요합니다.\n" +
-      "아래 링크를 눌러 약관을 확인하고 동의해주세요.\n\n" +
-      link + "\n\n" +
+      "아래 버튼을 눌러 약관을 확인하고 동의해주세요.\n\n" +
       "감사합니다.";
 
-    // 팝빌 알림톡 발송 (기존 sendAlimtalk과 동일한 방식)
     var accessToken = getPopbillAccessToken(["member", "153"]);
-    var tplCode = ""; // 약관용 템플릿이 없으면 친구톡(FMS)으로 발송
+    var tplCode = "026040000008";
 
     var body = {
       snd: "0507-1394-8539",
+      templateCode: tplCode,
       content: content,
       msgs: [{
         rcv: phone,
         rcvnm: customerName
       }],
-      altSendType: "A"  // 알림톡 실패 시 SMS 대체발송
+      btns: [{
+        n: "약관 확인 및 동의",
+        t: "WL",
+        u1: link,
+        u2: link
+      }],
+      altSendType: "A"
     };
 
-    // 템플릿 코드가 있으면 알림톡, 없으면 친구톡
-    var endpoint;
-    if (tplCode) {
-      body.templateCode = tplCode;
-      endpoint = "https://popbill.linkhub.co.kr/ATS";
-    } else {
-      endpoint = "https://popbill.linkhub.co.kr/FMS";
-    }
+    var endpoint = "https://popbill.linkhub.co.kr/ATS";
 
     var options = {
       method: "post",
